@@ -7,6 +7,7 @@ module Zuora::Objects
     belongs_to :bill_to, :class_name => 'Contact'
     belongs_to :sold_to, :class_name => 'Contact'
 
+    # NOTE(omar): Missing tax_exempt_xxx fields
     validates_presence_of :account_number, :name, :status, :payment_term, :batch, :currency
     validates_length_of :name, :maximum => 50
     validates_length_of :purchase_order_number, :maximum => 100, :allow_nil => true

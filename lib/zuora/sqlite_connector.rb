@@ -3,24 +3,44 @@ require 'sqlite3'
 module Zuora
   #Sqlite3 in memoroy connector to simulate Zuora in test environments
   class SqliteConnector
+    QUERY_LIMIT = 10
+    QUERY_LOCATOR_DELIMITER = "|"
+
     cattr_accessor :db
 
     def initialize(model)
       @model = model
     end
 
-    def query(sql)
-      result = db.query sql
-      hashed_result = result.map {|r| hash_result_row(r, result) }
+    def query_with_offset(sql, offset = 0)
+      result = db.query (sql + " LIMIT #{QUERY_LIMIT + 1} OFFSET #{offset}")
+      if result.count > QUERY_LIMIT
+        limited_result = result[0...QUERY_LIMIT]
+        query_locator = [offset.to_i + QUERY_LIMIT, sql].join(QUERY_LOCATOR_DELIMITER)
+      else
+        limited_result = result
+        query_locator = nil
+      end
+      hashed_result = limited_result.map {|r| hash_result_row(r, result) }
       {
-        :query_response => {
-          :result => {
-            :success => true,
-            :size => result.count,
-            :records => hashed_result
+          :query_response => {
+              :result => {
+                  :success => true,
+                  :size => result.count,
+                  :records => hashed_result,
+                  :query_locator => query_locator
+              }
           }
-        }
       }
+    end
+
+    def query(sql)
+      query_with_ofset(sql, 0)
+    end
+
+    def query_more(query_locator)
+      offset, sql = query_locator.split(QUERY_LOCATOR_DELIMITER)
+      query_with_offset(sql, offset)
     end
 
     def create

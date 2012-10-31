@@ -15,12 +15,12 @@ describe Zuora::Api do
     end
 
     it "uses production WSDL by default" do
-      Zuora::Api.instance.client.wsdl.endpoint.to_s.should == "https://www.zuora.com/apps/services/a/38.0"
+      Zuora::Api.instance.client.wsdl.endpoint.to_s.should == "https://www.zuora.com/apps/services/a/43.0"
     end
 
     it "can be configured to use sandbox WSDL" do
       Zuora.configure(:username => 'example', :password => 'test', :sandbox => true)
-      Zuora::Api.instance.client.wsdl.endpoint.to_s.should == "https://apisandbox.zuora.com/apps/services/a/38.0"
+      Zuora::Api.instance.client.wsdl.endpoint.to_s.should == "https://apisandbox.zuora.com/apps/services/a/43.0"
     end
 
     it "can be configured multiple times" do

@@ -13,6 +13,12 @@ module Zuora
       end
     end
 
+    def query_more(query_locator)
+      Zuora::Api.instance.request(:queryMore) do |xml|
+        xml.__send__(@model.zns, :queryLocator, query_locator)
+      end
+    end
+
     def create
       Zuora::Api.instance.request(:create) do |xml|
         xml.__send__(zns, :zObjects, 'xsi:type' => "#{ons}:#{remote_name}") do |a|

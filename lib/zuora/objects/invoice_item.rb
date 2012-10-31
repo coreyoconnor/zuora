@@ -5,6 +5,7 @@ module Zuora::Objects
     belongs_to :rate_plan_charge
     belongs_to :subscription
 
+    # NOTE(omar): Missing applied_to_invoice_item_id tax_amount tax_code tax_exempt_amount
     validates_presence_of :charge_amount, :charge_date, :charge_number, :invoice_id, :product_id,
       :product_name, :rate_plan_charge_id, :service_start_date, :subscription_id, :unit_price
 

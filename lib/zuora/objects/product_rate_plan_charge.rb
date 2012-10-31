@@ -7,6 +7,8 @@ module Zuora::Objects
     belongs_to :product_rate_plan
     has_many :product_rate_plan_charge_tiers
 
+    # NOTE(omar): Missing apply_discount_to discount_level price_change_option taxable tax_code tax_mode
+    #             up_to_periods use_tenant_default_for_price_change
     BILL_CYCLE_TYPES            = %w(DefaultFromCustomer SpecificDayofMonth SubscriptionStartDay ChargeTriggerDay)
     BILLING_PERIODS             = ['Month','Quarter','Annual','Semi-Annual','Specific Months']
     BILLING_PERIOD_ALIGNMENTS   = %w(AlignToCharge AlignToSubscriptionStart AlignToTermStart)

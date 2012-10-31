@@ -2,16 +2,19 @@ module Zuora::Objects
   class Contact < Base
     belongs_to :account
 
+    # NOTE(omar): Missing tax_region
     validates_presence_of :account_id, :first_name, :last_name
     validates_length_of :first_name, :maximum => 100
     validates_length_of :last_name, :maximum => 100
     validates_length_of :nick_name, :maximum => 100, :allow_nil => true
+    validates_length_of :description, :maximum => 100, :allow_nil => true
     validates_length_of :address1, :maximum => 255, :allow_nil => true
     validates_length_of :address2, :maximum => 255, :allow_nil => true
     validates_length_of :city, :maximum => 40, :allow_nil => true
     validates_length_of :state, :maximum => 40, :allow_nil => true
     validates_length_of :postal_code, :maximum => 20, :allow_nil => true
     validates_length_of :country, :maximum => 32, :allow_nil => true
+    validates_length_of :county, :maximum => 32, :allow_nil => true
     validates_length_of :fax, :maximum => 40, :allow_nil => true
     validates_length_of :home_phone, :maximum => 40, :allow_nil => true
     validates_length_of :work_phone, :maximum => 40, :allow_nil => true

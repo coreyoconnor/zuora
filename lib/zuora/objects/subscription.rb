@@ -6,6 +6,10 @@ module Zuora::Objects
     belongs_to :creator_invoice_owner, :class_name => 'Account'
     has_many :rate_plans
 
+    # NOTE(omar): There should be an AncestorAccountId field according to the wsdl, but if it's included in
+    #             the query we get an INVALID_FIELD fault, so defer it
+    @@deferred_attributes = [:ancestor_account_id]
+
     validates_presence_of :contract_effective_date, :initial_term,
                           :renewal_term, :term_start_date
 

@@ -6,6 +6,7 @@ module Zuora::Objects
     has_many :invoice_adjustments
     has_many :invoice_item_adjustments
 
+    # NOTE(omar): Missing amount_without_tax
     validates_presence_of(
       :account_id, :amount, :balance, :due_date, :invoice_date, :invoice_number,
       :status, :target_date

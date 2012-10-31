@@ -1,3 +1,5 @@
+require "pp"
+
 module Zuora::Objects
   # All Zuora objects extend from Zuora::Objects::Base, which provide the fundemental requirements
   # for handling creating, destroying, updating, and querying Zuora.
@@ -77,7 +79,7 @@ module Zuora::Objects
     # locate objects using a custom where clause, currently arel
     # is not supported as it requires an actual db connection to
     # generate the sql queries. This may be overcome in the future.
-    def self.where(where)
+    def self.where(where, get_all = false)
       keys = (attributes - unselectable_attributes).map(&:to_s).map(&:camelcase)
       if where.is_a?(Hash)
         # FIXME: improper inject usage.
@@ -86,8 +88,17 @@ module Zuora::Objects
       sql = "select #{keys.join(', ')} from #{remote_name} where #{where}"
 
       result = self.connector.query(sql)
-
-      generate(result.to_hash, :query_response)
+      result_hash = result.to_hash
+      records = generate(result_hash, :query_response)
+      query_locator = result_hash[:query_response][:result][:query_locator]
+      while query_locator
+        # NOTE(omar): Should we sleep here so that Zuora doesn't get pissed at us for querying too much?
+        result = self.connector.query_more(query_locator)
+        result_hash = result.to_hash
+        records += generate(result_hash, :query_more_response)
+        query_locator = result_hash[:query_more_response][:result][:query_locator]
+      end if get_all
+      records
     end
 
     # has this record not been saved?

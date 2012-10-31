@@ -2,6 +2,7 @@ module Zuora::Objects
   class ProductRatePlanChargeTier < Base
     belongs_to :product_rate_plan_charge
 
+    # NOTE(omar): Missing discount_amount discount_percentage
     validates_presence_of :currency
 
     validates_inclusion_of :active, :in => [true, false]

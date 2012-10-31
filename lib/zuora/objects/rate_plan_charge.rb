@@ -10,6 +10,8 @@ module Zuora::Objects
     
     has_many :rate_plan_charge_tiers
 
+    # Note(omar): Missing price_change_option
+
     CHARGE_MODELS = [ 
       "Flat Fee Pricing",
       "Per Unit Pricing",
