@@ -6,9 +6,9 @@ Gem::Specification.new do |s|
   s.name        = "zuora"
   s.version     = Zuora::Version.to_s
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Josh Martin"]
-  s.email       = ["josh.martin@wildfireapp.com"]
-  s.homepage    = "http://github.com/wildfireapp/zuora"
+  s.authors     = ["Josh Martin", "Omar Ghishan"]
+  s.email       = ["josh.martin@wildfireapp.com", "oghish@gmail.com"]
+  s.homepage    = "http://github.com/oghishan/zuora"
   s.summary     = %q{Zuora - ActiveModel backed client for the Zuora API}
   s.description = %q{Zuora - Easily integrate the Zuora SOAP API using ruby objects.}
   s.files         = `git ls-files`.split("\n")
