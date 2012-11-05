@@ -26,6 +26,7 @@ module Zuora
   class Api
     include Singleton
 
+    MAX_RETRIES = 10
     # @return [Savon::Client]
     def client
       @client ||= make_client
@@ -67,15 +68,28 @@ module Zuora
     # @raise [Zuora::Fault]
     def request(method, xml_body=nil, &block)
       authenticate! unless authenticated?
-
-      response = client.request(method) do
-        soap.header = {'env:SessionHeader' => {'ins0:Session' => self.session.try(:key) }}
-        if block_given?
-          soap.body{|xml| yield xml }
-        else
-          soap.body = xml_body
+      retries = 0
+      response = nil
+      while retries < MAX_RETRIES
+        begin
+          response = client.request(method) do
+            soap.header = {'env:SessionHeader' => {'ins0:Session' => self.session.try(:key) }}
+            if block_given?
+              soap.body{|xml| yield xml }
+            else
+              soap.body = xml_body
+            end
+          end
+          break
+        rescue HTTPClient::ReceiveTimeoutError, HTTPClient::ConnectTimeoutError => e
+          retries += 1
+          if retries == MAX_RETRIES
+            raise e
+          end
+          STDERR.puts "Request timed out. Retrying (#{retries}/#{MAX_RETRIES})..."
         end
       end
+      response
     rescue Savon::SOAP::Fault, IOError => e
       raise Zuora::Fault.new(:message => e.message)
     end
