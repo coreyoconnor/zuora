@@ -146,6 +146,7 @@ module Zuora::Objects
     # TODO: Restructute an intermediate class that includes
     # persistence only within ZObject models.
     # These methods are not relevant, but defined in Base
+    def all ; end
     def find ; end
     def where ; end
     def update ; end

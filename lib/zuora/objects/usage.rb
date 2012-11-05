@@ -22,6 +22,10 @@ module Zuora::Objects
 
     define_attributes do
       read_only :updated_by_id, :updated_date, :created_by_id, :created_date
+
+      # NOTE(omar): Querying for these is broken. Also, invoice fields are not documented even though they're
+      # in the wsdl.
+      defer :ancestor_account_id, :invoice_id, :invoice_number
     end
   end
 end

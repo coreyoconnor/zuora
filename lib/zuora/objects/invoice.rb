@@ -48,6 +48,10 @@ module Zuora::Objects
         :updated_by_id,
         :updated_date
       )
+
+      write_only :regenerate_invoice_pdf
+      defer :body # NOTE(omar): Zuora limits us to a single invoice body per query, so lets defer it for now.
+
       defaults(
         :includes_one_time => true,
         :includes_recurring => true,

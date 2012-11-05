@@ -23,6 +23,9 @@ module Zuora::Objects
     define_attributes do
       read_only :created_by_id, :created_date, :updated_by_id, :updated_date
       defaults :status => 'Draft'
+      # TODO(omar): This should be a complex attribute with a :rate_plan and a :rate_plan_charge_data
+      defer :rate_plan_data
     end
+
   end
 end
