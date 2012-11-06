@@ -136,18 +136,22 @@ module Zuora
       end
     end
 
-    def self.create_table(model)
+    def self.create_table_schema(model)
       table_name = self.table_name(model)
       attributes = model.attributes - [:id]
-      attributes = attributes.map do |a|
-        "'#{a.to_s.camelize}' text"
-      end
+      attributes = attributes.map { |a| "'#{a.to_s.camelize}' text" }
       autoid = "'Id' integer PRIMARY KEY AUTOINCREMENT"
       attributes.unshift autoid
       attributes = attributes.join(", ")
-      schema = "CREATE TABLE 'main'.'#{table_name}' (#{attributes});"
-      db.execute schema
+      "CREATE TABLE 'main'.'#{table_name}' (#{attributes});"
     end
 
+    def self.create_table(model)
+      db.execute self.create_table_schema(model)
+    end
+
+    def self.generate_schema
+      Zuora::Objects::Base.subclasses.map { |model| self.create_table_schema(model) }.join('\n')
+    end
   end
 end
