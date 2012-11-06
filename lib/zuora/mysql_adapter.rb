@@ -5,7 +5,7 @@ module Zuora
   # importing data.
   class MysqlAdapter
 
-    attr_accessor :db
+    attr_reader :db
 
     def initialize(db_info)
       @db = Sequel.mysql(db_info.merge("database" => "zuora"))
