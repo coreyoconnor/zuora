@@ -92,7 +92,8 @@ module Zuora::Objects
       records = generate(result_hash, :query_response)
       query_locator = result_hash[:query_response][:result][:query_locator]
       while query_locator
-        # NOTE(omar): Should we sleep here so that Zuora doesn't get pissed at us for querying too much?
+        # NOTE(omar): How much should we throttle so that Zuora doesn't get pissed at us?
+        sleep(1)
         result = self.connector.query_more(query_locator)
         result_hash = result.to_hash
         records += generate(result_hash, :query_more_response)
