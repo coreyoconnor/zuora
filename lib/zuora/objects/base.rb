@@ -85,8 +85,8 @@ module Zuora::Objects
         # FIXME: improper inject usage.
         where = where.inject([]){|t,v| t << "#{v[0].to_s.camelcase} = '#{v[1]}'"}.sort.join(' and ')
       end
-      sql = "select #{keys.join(', ')} from #{remote_name} where #{where}"
-
+      sql = "select #{keys.join(', ')} from #{remote_name}"
+      sql += " where #{where}" unless where.empty?
       result = self.connector.query(sql)
       result_hash = result.to_hash
       records = generate(result_hash, :query_response)
