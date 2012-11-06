@@ -13,7 +13,7 @@ module Zuora::Associations
       instance_eval do
         define_method "#{klass_sym}" do
          klass = klass_name.constantize
-         klass.where("#{self.remote_name}Id = '#{self.id}'")
+         klass.where("#{self.remote_name}Id = '#{self.id}'").first
         end
       end
     end

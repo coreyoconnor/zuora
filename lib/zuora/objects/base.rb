@@ -37,7 +37,22 @@ module Zuora::Objects
 
     # find a record by the id
     def self.find(id)
-      where(:id => id).first
+      where(:id => id).first.first
+    end
+
+    def self.get(query_locator = nil)
+      if query_locator
+        result = self.connector.query_more(query_locator)
+        result_hash = result.to_hash
+        records = generate(result_hash, :query_more_response)
+        query_locator = result_hash[:query_more_response][:result][:query_locator]
+        return [records, query_locator]
+      end
+      where("", false)
+    end
+
+    def self.all
+      where("", true).first
     end
 
     # reload the record from the remote source
@@ -99,7 +114,7 @@ module Zuora::Objects
         records += generate(result_hash, :query_more_response)
         query_locator = result_hash[:query_more_response][:result][:query_locator]
       end if get_all
-      records
+      [records, query_locator]
     end
 
     # has this record not been saved?
