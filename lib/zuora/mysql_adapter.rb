@@ -11,6 +11,10 @@ module Zuora
       @db = Sequel.mysql(db_info.merge("database" => "zuora"))
     end
 
+    def disconnect
+      @db.disconnect
+    end
+
     def query(sql)
       result = db << sql
       hashed_result = result.map {|r| hash_result_row(r, result) }
