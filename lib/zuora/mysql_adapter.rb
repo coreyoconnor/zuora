@@ -44,25 +44,58 @@ module Zuora
       }
     end
 
-    def import(models)
-      tables = Hash.new([])
-      models.each do |model|
-        tables[table_name(model)] << model
+    def multi_insert(records)
+      tables = {}
+      records.each do |record|
+        table = table_name(record.class)
+        tables[table] = [] unless tables.has_key?(table)
+        tables[table] << record
       end
 
-      tables.each do |table, table_models|
-        hashes = table_models.map(&:to_hash)
-        hashes.each { |hash| hash.delete(:id) }
-        new_ids = @db[table.to_sym].on_duplicate_key_update.multi_insert(hashes)
-        {
-            :create_response => {
-                :result => {
-                    :success => true,
-                    :ids => new_ids
-                }
-            }
-        }
+      new_ids = {}
+      tables.each do |table, table_records|
+        new_ids[table] = []
+        hashes = camelize_hashes(table_records.map(&:to_hash))
+        puts "#{Time.now.to_s} Inserting records into #{table}..."
+        # Make sure we don't try to insert too much data at once, or the query string might get too large
+        hashes.each_slice(500) do |hashes_slice|
+          new_ids[table] += @db[table.to_sym].on_duplicate_key_update.multi_insert(hashes_slice)
+        end
       end
+      {
+          :create_response => {
+              :result => {
+                  :success => true,
+                  :ids => new_ids
+              }
+          }
+      }
+    end
+
+    def import_from(model, query_locator)
+      puts "Importing #{model.name.split('::').last} records with query locator #{query_locator}..."
+      records, new_query_locator = model.get(query_locator)
+      multi_insert(records)
+      new_query_locator
+    end
+
+    def import(model, where = "")
+      puts "Importing #{model.name.split('::').last} records..."
+      records, query_locator = model.where(where)
+      multi_insert(records)
+      while !query_locator.nil? and !query_locator.empty?
+        query_locator = import_from(model, query_locator)
+      end
+    end
+
+    def camelize_hashes(hashes)
+      camelized_hashes = []
+      hashes.each do |hash|
+        camelized_hash = {}
+        hash.each { |key, value| camelized_hash[key.to_s.camelize] = value }
+        camelized_hashes << camelized_hash
+      end
+      camelized_hashes
     end
 
     def update(model)
