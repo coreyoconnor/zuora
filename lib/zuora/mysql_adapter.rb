@@ -88,6 +88,29 @@ module Zuora
       end
     end
 
+    def import_new(model)
+      table_name = table_name(model)
+      # NOTE(omar): These should work, but they produce a mysql error on my local db running mysql v5.5
+      #max_updated_date = @db[table_name(model)].max(:UpdatedDate)
+      #max_created_date = @db[table_name(model)].max(:CreatedDate)
+      dates = @db[table_name].with_sql(
+          "SELECT max(UpdatedDate) AS max_updated_date, max(CreatedDate) AS max_created_date " \
+          "FROM #{table_name}").all
+      if dates.empty?
+        where = ""
+      else
+        # TODO(omar): It might be possible that there are some records with an UpdatedDate that is less than
+        # our max_date that we haven't synced. Maybe some things got updated after we got it in a query()
+        # while we were doing queryMore()'s, so we end up never updating some of them. We should probably
+        # take a timestamp just before syncing the model, store it if the sync was successful, and use that
+        # when doing the next update.
+        max_date = dates[0].values.max.strftime("%Y-%m-%dT%H:%M:%S%z")
+        where = "CreatedDate >= #{max_date} OR UpdatedDate >= #{max_date}"
+      end
+
+      import(model, where)
+    end
+
     def camelize_hashes(hashes)
       camelized_hashes = []
       hashes.each do |hash|
