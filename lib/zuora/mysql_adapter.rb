@@ -158,46 +158,5 @@ module Zuora
       row = row.map {|r| r.nil? ? "" : r }
       Hash[result.columns.zip(row.to_a)]
     end
-=begin Wrong column types
-
-    def parse_attributes(type, attrs = {})
-      data = attrs.to_a.map do |a|
-        key, value = a
-        [key.underscore, value]
-      end
-      Hash[data]
-    end
-
-    def self.generate_tables
-      Zuora::Objects::Base.subclasses.each do |model|
-        create_table(model)
-      end
-    end
-
-    def self.create_table_schema(model)
-      table_name = self.table_name(model)
-      attributes = model.attributes - [:id]
-      attributes = attributes.map do |a|
-        "'#{a.to_s.camelize}' text"
-      end
-      autoid = "'Id' integer PRIMARY KEY AUTOINCREMENT"
-      attributes.unshift autoid
-      attributes = attributes.join(", ")
-      "CREATE TABLE 'main'.'#{table_name}' (#{attributes});"
-    end
-
-    def self.create_table(model)
-      schema = self.create_table_schema(model)
-      db.execute schema
-    end
-
-    def self.generate_schema
-      schema = ""
-      Zuora::Objects::Base.subclasses.each do |model|
-        schema += create_table_schema(model) + "\n"
-      end
-      schema
-    end
-=end
   end
 end
