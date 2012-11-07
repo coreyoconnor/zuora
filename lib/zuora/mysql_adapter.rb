@@ -149,8 +149,12 @@ module Zuora
       }
     end
 
-    def table_name(model)
+    def self.table_name(model)
       model.name.demodulize
+    end
+
+    def table_name(model)
+      self.class.table_name(model)
     end
 
     protected
