@@ -28,3 +28,11 @@ require 'zuora/objects/rate_plan_charge'
 require 'zuora/objects/rate_plan_charge_tier'
 require 'zuora/objects/refund'
 require 'zuora/objects/refund_invoice_payment'
+
+module Zuora
+  module Objects
+    def models
+      Zuora::Objects::Base.subclasses
+    end
+  end
+end
