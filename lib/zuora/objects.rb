@@ -31,7 +31,7 @@ require 'zuora/objects/refund_invoice_payment'
 
 module Zuora
   module Objects
-    def models
+    def self.models
       Zuora::Objects::Base.subclasses
     end
   end
