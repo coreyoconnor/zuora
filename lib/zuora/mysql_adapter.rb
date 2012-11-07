@@ -89,27 +89,27 @@ module Zuora
       end
     end
 
+    def get_update_times(model)
+      @db[:updates].first(:model => table_name(model))
+    end
+
     def import_new(model)
-      table_name = table_name(model)
       # NOTE(omar): These should work, but they produce a mysql error on my local db running mysql v5.5
       #max_updated_date = @db[table_name(model)].max(:UpdatedDate)
       #max_created_date = @db[table_name(model)].max(:CreatedDate)
-      dates = @db[table_name].with_sql(
-          "SELECT max(UpdatedDate) AS max_updated_date, max(CreatedDate) AS max_created_date " \
-          "FROM #{table_name}").all
-      if dates.empty?
-        where = ""
+      last_update_times = get_update_times(model)
+
+      if last_update_times
+        max_date_str = last_update_times[:update_start].strftime("%Y-%m-%dT%H:%M:%S%z")
+        where = "CreatedDate >= #{max_date_str} OR UpdatedDate >= #{max_date_str}"
       else
-        # TODO(omar): It might be possible that there are some records with an UpdatedDate that is less than
-        # our max_date that we haven't synced. Maybe some things got updated after we got it in a query()
-        # while we were doing queryMore()'s, so we end up never updating some of them. We should probably
-        # take a timestamp just before syncing the model, store it if the sync was successful, and use that
-        # when doing the next update.
-        max_date = dates[0].values.max.strftime("%Y-%m-%dT%H:%M:%S%z")
-        where = "CreatedDate >= #{max_date} OR UpdatedDate >= #{max_date}"
+        where = ""
       end
 
+      update_start = Time.now
       import(model, where)
+      update_end = Time.now
+      set_update_times(model, update_start, update_end)
     end
 
     def camelize_hashes(hashes)
@@ -158,6 +158,11 @@ module Zuora
     end
 
     protected
+
+    def set_update_times(model, update_start, update_end)
+      @db[:updates].on_duplicate_key_update <<
+          { :model => table_name(model), :update_start => update_start, :update_end => update_end }
+    end
 
     def hash_result_row(row, result)
       row = row.map {|r| r.nil? ? "" : r }
