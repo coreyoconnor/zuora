@@ -7,8 +7,9 @@ module Zuora
 
     attr_reader :db
 
-    def initialize(db_info)
+    def initialize(db_info, output = STDOUT)
       @db = Sequel.mysql(db_info.merge("database" => "zuora"))
+      @output = output
     end
 
     def disconnect
@@ -56,7 +57,7 @@ module Zuora
       tables.each do |table, table_records|
         new_ids[table] = []
         hashes = camelize_hashes(table_records.map(&:to_hash))
-        puts "#{Time.now.to_s} Inserting records into #{table}..."
+        @output.puts "#{Time.now.to_s} Inserting records into #{table}..."
         # Make sure we don't try to insert too much data at once, or the query string might get too large
         hashes.each_slice(500) do |hashes_slice|
           new_ids[table] += @db[table.to_sym].on_duplicate_key_update.multi_insert(hashes_slice)
@@ -73,14 +74,14 @@ module Zuora
     end
 
     def import_from(model, query_locator)
-      puts "Importing #{model.name.split('::').last} records with query locator #{query_locator}..."
+      @output.puts "Importing #{model.name.split('::').last} records with query locator #{query_locator}..."
       records, new_query_locator = model.get(query_locator)
       multi_insert(records)
       new_query_locator
     end
 
     def import(model, where = "")
-      puts "Importing #{model.name.split('::').last} records..."
+      @output.puts "Importing #{model.name.split('::').last} records..."
       records, query_locator = model.where(where)
       multi_insert(records)
       while !query_locator.nil? and !query_locator.empty?
