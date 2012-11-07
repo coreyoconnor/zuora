@@ -35,7 +35,7 @@ module Zuora
     end
 
     def query(sql)
-      query_with_ofset(sql, 0)
+      query_with_offset(sql, 0)
     end
 
     def query_more(query_locator)
